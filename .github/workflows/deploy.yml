@@ -1,0 +1,29 @@
+name: Deploy Website to Azure VM
+
+# 觸發條件：當有程式碼 push 到 main 分支時
+on:
+  push:
+    branches:
+      - main
+
+# 工作流程
+jobs:
+  deploy:
+    # 使用最新版的 Ubuntu 作為執行環境
+    runs-on: ubuntu-latest
+
+    # 執行的步驟
+    steps:
+      - name: SSH into VM and deploy
+        # 使用一個別人寫好的、方便的 SSH Action
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          # 以下是傳給這個 Action 的參數
+          host: ${{ secrets.AZURE_VM_IP }}
+          username: ${{ secrets.AZURE_VM_USERNAME }}
+          key: ${{ secrets.AZURE_SSH_PRIVATE_KEY }}
+          script: |
+            # 登入後要執行的指令
+            cd /usr/share/nginx/html
+            git pull origin main
+            echo "Deployment successful!"
